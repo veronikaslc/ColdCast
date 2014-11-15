@@ -25,7 +25,9 @@
   "homepage": "https://github.com/veronikaslc/ColdCast",
   "dependencies": {
     "express": "^4.10.2",
+    "fs": "0.0.2",
     "node": "0.0.0",
+    "readline": "0.0.5",
     "request": "^2.48.0"
   }
 }
