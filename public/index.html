@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>ColdCast Webapp</title>
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <script src="lib/angular.js"></script>
+    <script src="lib/angular-resource.js"></script>
+    <script src="js/controllers/controller.js"></script>
+</head>
+<body ng-app="myApp" style="top:10px; margin: 10px;">
+<div  ng-controller ="MainController">
+    <span style="font-size: 10px; color: blue;">Raw response from server:  {{data}} </span>
+    <h2>And our leaders for now:</h2>
+    <table style="background-color: deepskyblue;">
+        <tr ng-repeat="item in cities">
+            <td >
+                <div >City: {{item.name}} ; </div>
+            </td>
+            <td >
+                <div > Temperature: {{item.temp}}</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
+
+
+
