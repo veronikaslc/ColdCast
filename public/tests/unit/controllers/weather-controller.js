@@ -33,6 +33,7 @@ describe('Weather controller Test', function (){
     it('should verify the length of the city list', function() {
         CreateController('MainController');
         $httpBackend.flush();
+        $scope.onGetList();
         expect($scope.cities.length).toBe(10);
     });
 
