@@ -6,7 +6,13 @@
     <link href="css/bootstrap.css" rel="stylesheet">
     <script src="lib/angular.js"></script>
     <script src="lib/angular-resource.js"></script>
+    <script src='lib/angular-google-maps.js'></script>
+    <script src='lib/lodash.js'></script>
     <script src="js/controllers/controller.js"></script>
+    <script src='//maps.googleapis.com/maps/api/js?sensor=false'></script>
+    <style>
+        .angular-google-map-container { height: 400px; }
+    </style>
 </head>
 <body ng-app="myApp" style="top:10px; margin: 10px;">
 <div  ng-controller ="MainController">
@@ -35,11 +41,18 @@
     </table>
 <h2>Dear Alex, now it's interactive! Жми кнопки - получай удовольствие:))</h2>
     Recall API to refresh
-    <button class="btn btn-primary" id="loginbutton" ng-click='getListAPI()'>API refresh</button>
-Recakk Scrapping to refresh
-    <button class="btn btn-primary" id="loginbutton" ng-click='getListScrap()'>Scrapping refresh</button>
+    <button class="btn btn-primary"  ng-click='getListAPI()'>API refresh</button>
+Recall Scrapping to refresh
+    <button class="btn btn-primary"  ng-click='getListScrap()'>Scrapping refresh</button>
 
 </div>
+
+<ui-gmap-google-map center='map.center' zoom='map.zoom'></ui-gmap-google-map>
+
+<ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" options="options" bounds="map.bounds">
+    <ui-gmap-markers models="points" coords="'self'" icon="'icon'">
+    </ui-gmap-markers>
+</ui-gmap-google-map>
 
 </body>
 </html>

@@ -7,7 +7,8 @@ var myApp = angular.module('myApp',[]);
 myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
 
     var nIntervId;
-
+    $scope.map = {center: {latitude: 40.1451, longitude: -99.6680 }, zoom: 4, bounds: {}};
+    $scope.options = {scrollwheel: false};
     //Do not send requests more then 1 time per 10 minutes from one device. Normally the weather is not changing so frequently
     function repeatCalls() {
         nIntervId = window.setInterval(onGetList, 10*60*1000);
@@ -16,6 +17,15 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
     function renderServicesgetAPI(response) {
         $scope.data = JSON.stringify(response);
         $scope.cities = response;
+        for(var i in $scope.cities){
+            var ret = {
+                latitude: $scope.cities[i].lat,
+                longitude: $scope.cities[i].lon,
+                title: $scope.cities[i].name,
+                id:i
+            };
+            $scope.points.push(ret);
+        }
     }
 
     function renderServicesgetScrap(response) {
