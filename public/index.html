@@ -22,6 +22,23 @@
             </td>
         </tr>
     </table>
+
+    <table style="background-color: deepskyblue;">
+        <tr ng-repeat="item in citiesScrap">
+            <td >
+                <div >Scarpped City: {{item.name}} ; </div>
+            </td>
+            <td >
+                <div >Scrapped Temperature: {{item.scraptemp}}</div>
+            </td>
+        </tr>
+    </table>
+<h2>Dear Alex, now it's interactive! Жми кнопки - получай удовольствие:))</h2>
+    Recall API to refresh
+    <button class="btn btn-primary" id="loginbutton" ng-click='getListAPI()'>API refresh</button>
+Recakk Scrapping to refresh
+    <button class="btn btn-primary" id="loginbutton" ng-click='getListScrap()'>Scrapping refresh</button>
+
 </div>
 
 </body>

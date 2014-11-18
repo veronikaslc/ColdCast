@@ -13,9 +13,6 @@ app = express();
 
 app.use(express.static(__dirname+'/public'));
 
-
-var toronto_code = 6167865;
-
 var API_key = '7efdf026c7705a541d3bdd32bb344712';
 
 var result = [];
@@ -42,15 +39,45 @@ for(var i in array) {
 }
 
 var id_list='';
-//concatination cities IDs to form the url
-for (j in cities){
+
+for (var j in cities){
+    //assembling  IDs to form the url for API call
     id_list = id_list + ',' + cities[j].id;
+    //timing scrapping for a second
+
+    setTimeout(function() {
+        scrap('https://www.google.ca/search?q='+ cities[j].name+'+canada+weather', j);
+    }, 1000);
+
 }
 
 id_list = id_list.substring(1, id_list.length);
 
-//sorting function for respond array
-function compare(a,b) {
+//scrapping helper function
+function scrap(url, i){
+    request(url, function(err, res, html) {
+        // build the "DOM" object, representing the structure of the HTML page just fetched
+        var $ = cheerio.load(html);
+        console.log(html);
+        //console.log("in a lop");
+        var text = $(".wob_t").eq(0).text();
+        console.log(text);
+        cities[i].scraptemp = text.substring(0, text.length-2);
+    });
+}
+
+//sorting function for scrapping array
+function compareScrap(a,b) {
+    if (a.scraptemp < b.scraptemp)
+        return -1;
+    if (a.scraptemp > b.scraptemp)
+        return 1;
+    return 0;
+}
+
+
+//sorting function for respond array from weather API
+function compareAPI(a,b) {
     if (a.main.temp < b.main.temp)
         return -1;
     if (a.main.temp > b.main.temp)
@@ -64,28 +91,36 @@ var real_url ='http://api.openweathermap.org/data/2.5/group?id=' + id_list +'&un
 
 request(real_url, function(error, resp, body) {
     var doc = JSON.parse(body).list;
-    doc.sort(compare);
+    doc.sort(compareAPI);
     var result10 = doc.slice(0, 10);
-
     for (var k in result10) {
         result.push({id: result10[k].id, name: result10[k].name, lat: result10[k].coord.lat, lon: result10[k].coord.lon, temp: result10[k].main.temp});
     }
-
-    logger.log('infoNEW',result);
 });
 
 app.get('/weather', function (req, resp) {
     resp.json(result);
 });
 
+cities.sort(compareScrap);
+var result10scrap = cities.slice(0, 10);
+
+app.get('/weatherscrap', function (req, resp) {
+    resp.json(result10scrap);
+});
+
 //-----SCRAPPING---
 
 // fetch the whole HTML of the page
-request('http://www.weather.com/search/enhancedlocalsearch?where=Toronto%2C+Canada', function(err, res, html) {
+/*request('https://www.google.ca/search?q=waterloo+canada+weather', function(err, res, html) {
     // build the "DOM" object, representing the structure of the HTML page just fetched
     var $ = cheerio.load(html);
-    console.log($(".wx-temp").eq(0).text());
-});
+    console.log($(".wob_t").eq(0).text());
+});*/
+
+
+
+
 
 app.listen(3000);
 
