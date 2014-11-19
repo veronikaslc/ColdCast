@@ -42,9 +42,7 @@ var logger = new (winston.Logger) ({
 });
 
 buildURL();
-//getAIPdata();
-//repeatCalls();
-
+repeatCalls();
 
 function repeatCalls() {
     timer = setInterval( getAIPdata, 10*60*1000);
@@ -60,8 +58,11 @@ function repeatCalls() {
 app.get('/weather', function (req, resp) {
     weatherAPI.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
         if (!doc) {
-            var data = getAIPdata();
-            resp.json(data);
+            var data = getAIPdata(function(doc){
+                console.log('sending response json');
+                resp.json(doc);
+            });
+
         } else {
             console.log('found something');
             console.log(doc);
@@ -120,7 +121,7 @@ function compareAPI(a,b) {
     return 0;
 }
 
-function getAIPdata(){
+function getAIPdata(callback){
     console.log('getting 10 cities');
     request(real_url, function(error, resp, body) {
         var doc = JSON.parse(body).list;
@@ -138,17 +139,20 @@ function getAIPdata(){
         weatherAPI.insert(result10API, function(err, doc){
             if (err) {
                 logger.info(err);
-                return null;
+                if (callback) {
+                    callback(null);
+                }
             }
-            else
-                logger.info('new database entry from API '+doc);
+            else {
+                logger.info('new database entry from API ' + doc);
                 console.log(doc);
-                return doc;
+                if (callback) {
+                    callback(doc);
+                }
+            }
         });
 
     });
-
-    console.log('doing function return with data');
 
 }
 
