@@ -12,6 +12,7 @@ var winston = require('winston');
 var mongojs= require('mongojs');
 
 var db = mongojs('mydb');
+db.dropDatabase();
 db.on('ready',function() {
     console.log('database connected');
 });
@@ -59,9 +60,20 @@ function repeatCalls() {
 app.get('/weather', function (req, resp) {
     weatherAPI.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
         if (!doc) {
-            console.log('nothing - calling a function API querry');
-            getAIPdata();
-            resp.json(result10API);
+
+            function getSomeData(callbackFn){
+                console.log('nothing - calling a function API querry');
+                var data = getAIPdata();
+                callbackFn(data);
+            }
+
+            function sendData(data) {
+                console.log('returning request to frontend');
+                resp.json(data);
+            }
+
+            getSomeData(sendData);
+
         } else {
             console.log('found something');
             console.log(doc);
@@ -130,19 +142,26 @@ function getAIPdata(){
         for (var k in result10) {
             result.push({id: result10[k].id, name: result10[k].name, lat: result10[k].coord.lat, lon: result10[k].coord.lon, temp: result10[k].main.temp, timestamp: new Date()});
         }
+
+        result10API = {timestamp: new Date(), data: result};
+        console.log('got cities:');
+        console.log(result10API);
+//recording in database
+        weatherAPI.insert(result10API, function(err, doc){
+            if (err) {
+                logger.info(err);
+                return null;
+            }
+            else
+                logger.info('new database entry from API '+doc);
+                console.log(doc);
+                return doc;
+        });
+
     });
 
-    result10API = {timestamp: new Date(), data: result};
-    console.log('got cities:');
-    console.log(result10API);
-//recording in database
-    weatherAPI.insert(result10API, function(err, doc){
-        if (err)
-            logger.info(err);
-        else
-            logger.info('new database entry from API '+doc);
-        console.log(doc);
-    });
+    console.log('doing function return with data');
+
 }
 
 //-----SCRAPPING part---
