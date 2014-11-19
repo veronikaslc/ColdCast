@@ -6,17 +6,17 @@
     <link href="css/bootstrap.css" rel="stylesheet">
     <script src="lib/angular.js"></script>
     <script src="lib/angular-resource.js"></script>
-    <script src='lib/angular-google-maps.js'></script>
-    <script src='lib/lodash.js'></script>
     <script src="js/controllers/controller.js"></script>
-    <script src='//maps.googleapis.com/maps/api/js?sensor=false'></script>
+
     <style>
         .angular-google-map-container { height: 400px; }
     </style>
 </head>
 <body ng-app="myApp" style="top:10px; margin: 10px;">
 <div  ng-controller ="MainController">
-    <span style="font-size: 10px; color: blue;">Raw response from server:  {{data}} </span>
+    <span style="font-size: 10px; color: blue;">Raw response for weather API:  {{dataAPI}} </span>
+    <br/>
+    <span style="font-size: 10px; color: blue;">Raw response for scrapped data:  {{dataScrap}} </span>
     <h2>And our leaders for now:</h2>
     <table style="background-color: deepskyblue;">
         <tr ng-repeat="item in cities">
@@ -47,12 +47,7 @@ Recall Scrapping to refresh
 
 </div>
 
-<ui-gmap-google-map center='map.center' zoom='map.zoom'></ui-gmap-google-map>
 
-<ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" options="options" bounds="map.bounds">
-    <ui-gmap-markers models="points" coords="'self'" icon="'icon'">
-    </ui-gmap-markers>
-</ui-gmap-google-map>
 
 </body>
 </html>

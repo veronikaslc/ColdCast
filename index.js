@@ -12,6 +12,10 @@ var winston = require('winston');
 var mongojs= require('mongojs');
 
 var db = mongojs('mydb');
+db.on('ready',function() {
+    console.log('database connected');
+});
+
 var weatherAPI = db.collection('weatherAPI');
 var weatherScrap = db.collection('weatherScrap');
 
@@ -21,9 +25,12 @@ app.use(express.static(__dirname+'/public'));
 
 var API_key = '7efdf026c7705a541d3bdd32bb344712';
 
+var result10API;
+var result10scrapped;
 var result = [];
 var cities_file  = 'city_list.txt';
 var cities = [];
+var timer;
 
 //logger setup
 var logger = new (winston.Logger) ({
@@ -34,6 +41,52 @@ var logger = new (winston.Logger) ({
 });
 
 buildURL();
+//getAIPdata();
+//repeatCalls();
+
+
+function repeatCalls() {
+    timer = setInterval( getAIPdata, 10*60*1000);
+}
+
+// find everything
+//weatherAPI.find(function(err, docs) {
+    // docs is an array of all the documents in mycollection
+//});
+
+
+// ---ROUTONG---
+app.get('/weather', function (req, resp) {
+    weatherAPI.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
+        if (!doc) {
+            console.log('nothing - calling a function API querry');
+            getAIPdata();
+            resp.json(result10API);
+        } else {
+            console.log('found something');
+            console.log(doc);
+            resp.json(doc);
+        }
+
+    });
+});
+
+app.get('/weatherscrap', function (req, resp) {
+    weatherScrap.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
+        if (!doc) {
+            getScarappedData();
+            resp.json(result10scrapped);
+        } else {
+            resp.json(doc);
+        }
+
+    });
+});
+
+
+
+//---HELPER FUNCTIONS---------------------------------
+
 
 //---API based part---
 function buildURL(){
@@ -67,6 +120,31 @@ function compareAPI(a,b) {
     return 0;
 }
 
+function getAIPdata(){
+    console.log('getting 10 cities');
+    request(real_url, function(error, resp, body) {
+        var doc = JSON.parse(body).list;
+        doc.sort(compareAPI);
+        var result10 = doc.slice(0, 10);
+
+        for (var k in result10) {
+            result.push({id: result10[k].id, name: result10[k].name, lat: result10[k].coord.lat, lon: result10[k].coord.lon, temp: result10[k].main.temp, timestamp: new Date()});
+        }
+    });
+
+    result10API = {timestamp: new Date(), data: result};
+    console.log('got cities:');
+    console.log(result10API);
+//recording in database
+    weatherAPI.insert(result10API, function(err, doc){
+        if (err)
+            logger.info(err);
+        else
+            logger.info('new database entry from API '+doc);
+        console.log(doc);
+    });
+}
+
 //-----SCRAPPING part---
 
 //scrapping helper function
@@ -89,29 +167,7 @@ function compareScrap(a,b) {
     return 0;
 }
 
-
-// ---ROUTONG---
-app.get('/weather', function (req, resp) {
-    request(real_url, function(error, resp, body) {
-        var doc = JSON.parse(body).list;
-        doc.sort(compareAPI);
-        var result10 = doc.slice(0, 10);
-        for (var k in result10) {
-            result.push({id: result10[k].id, name: result10[k].name, lat: result10[k].coord.lat, lon: result10[k].coord.lon, temp: result10[k].main.temp});
-        }
-    });
-//recording in database
-    weatherAPI.insert(result, function(err, doc){
-        if (err)
-            logger.info(err);
-        else
-            logger.info('new database entry from API '+doc);
-    });
-
-    resp.json(result);
-});
-
-app.get('/weatherscrap', function (req, resp) {
+function getScarappedData(){
     for (var j in cities) {
         //timing scrapping for a second
         setTimeout(function () {
@@ -119,20 +175,17 @@ app.get('/weatherscrap', function (req, resp) {
         }, 1000);
     }
     cities.sort(compareScrap);
-    var result10scrap = cities.slice(0, 10);
+
+    result10scrapped = {timestamp: new Date(), data: cities.slice(0, 10)};
 
     //recording in database
-    weatherScrap.insert(result, function(err, doc){
+    weatherScrap.insert(result10scrapped, function(err, doc){
         if (err)
             logger.info(err);
         else
             logger.info('Database new entry scrapped ' + doc);
     });
-
-    resp.json(result10scrap);
-});
-
-
+}
 
 // example of scrapping of single page:
 /*request('https://www.google.ca/search?q=waterloo+canada+weather', function(err, res, html) {
