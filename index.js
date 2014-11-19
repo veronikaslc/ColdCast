@@ -60,20 +60,8 @@ function repeatCalls() {
 app.get('/weather', function (req, resp) {
     weatherAPI.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
         if (!doc) {
-
-            function getSomeData(callbackFn){
-                console.log('nothing - calling a function API querry');
-                var data = getAIPdata();
-                callbackFn(data);
-            }
-
-            function sendData(data) {
-                console.log('returning request to frontend');
-                resp.json(data);
-            }
-
-            getSomeData(sendData);
-
+            var data = getAIPdata();
+            resp.json(data);
         } else {
             console.log('found something');
             console.log(doc);
