@@ -26,12 +26,14 @@ app.use(express.static(__dirname+'/public'));
 
 var API_key = '7efdf026c7705a541d3bdd32bb344712';
 
-var result10API;
-var result10scrapped;
-var result = [];
+//var result10API;
+//var result10scrapped;
+//var result = [];
 var cities_file  = 'city_list.txt';
 var cities = [];
-var timer;
+var lastAPIresult = [];
+var scrapCitiesList;
+var timerAPI, timerScrap;
 
 //logger setup
 var logger = new (winston.Logger) ({
@@ -45,7 +47,8 @@ buildURL();
 repeatCalls();
 
 function repeatCalls() {
-    timer = setInterval( getAIPdata, 10*60*1000);
+    timerAPI = setInterval( getAIPdata, 10*60*1000);
+    timerScrap = setInterval( getScarappedData, 10*60*1000);
 }
 
 // find everything
@@ -59,7 +62,7 @@ app.get('/weather', function (req, resp) {
     weatherAPI.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
         if (!doc) {
             var data = getAIPdata(function(doc){
-                console.log('sending response json');
+                console.log('weather API: sending response json');
                 resp.json(doc);
             });
 
@@ -75,8 +78,10 @@ app.get('/weather', function (req, resp) {
 app.get('/weatherscrap', function (req, resp) {
     weatherScrap.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
         if (!doc) {
-            getScarappedData();
-            resp.json(result10scrapped);
+            var data = getScarappedData(function(doc){
+                console.log('Scrapping: sending response json');
+                resp.json(doc);
+            });
         } else {
             resp.json(doc);
         }
@@ -122,19 +127,21 @@ function compareAPI(a,b) {
 }
 
 function getAIPdata(callback){
-    console.log('getting 10 cities');
+    logger.info('weather API: getting 10 coldest cities');
     request(real_url, function(error, resp, body) {
         var doc = JSON.parse(body).list;
         doc.sort(compareAPI);
         var result10 = doc.slice(0, 10);
-
+        var result = [];
         for (var k in result10) {
             result.push({id: result10[k].id, name: result10[k].name, lat: result10[k].coord.lat, lon: result10[k].coord.lon, temp: result10[k].main.temp, timestamp: new Date()});
         }
 
-        result10API = {timestamp: new Date(), data: result};
-        console.log('got cities:');
-        console.log(result10API);
+        lastAPIresult = result;
+
+        var result10API = {timestamp: new Date(), data: result};
+        logger.info('weather API: got cities:');
+        logger.info(result10API);
 //recording in database
         weatherAPI.insert(result10API, function(err, doc){
             if (err) {
@@ -145,7 +152,6 @@ function getAIPdata(callback){
             }
             else {
                 logger.info('new database entry from API ' + doc);
-                console.log(doc);
                 if (callback) {
                     callback(doc);
                 }
@@ -165,7 +171,8 @@ function scrap(url, i){
         var $ = cheerio.load(html);
         //logger.log('info',html);
         var text = $(".wob_t").eq(0).text();
-        cities[i].scraptemp = text.substring(0, text.length-2);
+        scrapCitiesList[i].scraptemp = text.substring(0, text.length-2);
+        console.log('scrapping city: '+i+' '+scrapCitiesList[i].name +' '+scrapCitiesList[i].scraptemp);
     });
 }
 
@@ -178,24 +185,52 @@ function compareScrap(a,b) {
     return 0;
 }
 
-function getScarappedData(){
-    for (var j in cities) {
-        //timing scrapping for a second
-        setTimeout(function () {
-            scrap('https://www.google.ca/search?q=' + cities[j].name + '+canada+weather', j);
-        }, 1000);
-    }
-    cities.sort(compareScrap);
+function getScarappedData(callback){
+    logger.info('scrapping: getting 10 coldest cities');
 
-    result10scrapped = {timestamp: new Date(), data: cities.slice(0, 10)};
+        if (lastAPIresult.length >0) {
+            scrapCitiesList = lastAPIresult;
+        }else {
+            scrapCitiesList = cities.slice(0, 10);
+        }
 
-    //recording in database
-    weatherScrap.insert(result10scrapped, function(err, doc){
-        if (err)
-            logger.info(err);
-        else
-            logger.info('Database new entry scrapped ' + doc);
-    });
+        //timing scrapping for 10 seconds
+        var j=0;
+        var timer2 = setInterval(function () {
+
+            if ( j == 10 ) {
+
+                clearTimeout(timer2);
+
+                scrapCitiesList.sort(compareScrap);
+
+                var result10scrapped = {timestamp: new Date(), data: scrapCitiesList};
+                logger.info('Scrapping: got cities:');
+                logger.info(result10scrapped);
+                //recording in database
+                weatherScrap.insert(result10scrapped, function(err, doc){
+                    if (err){
+                        logger.info(err);
+                        if (callback) {
+                            callback(null);
+                        }
+                    }
+                    else{
+                        logger.info('new database entry from scrapping ' + doc);
+                        if (callback) {
+                            callback(doc);
+                        }
+                    }
+                });
+            }
+            else {
+                scrap('https://www.google.ca/search?q=' + scrapCitiesList[j].name + '+canada+weather', j);
+                j++;
+            }
+
+        }, 3000);
+
+
 }
 
 // example of scrapping of single page:

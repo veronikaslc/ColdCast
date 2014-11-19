@@ -1,0 +1,102 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   'mongodb.js',
+1 verbose cli   '--save' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.32
+4 verbose node symlink C:\Program Files\nodejs\\node.exe
+5 warn package.json ColdCast@1.0.0 No README data
+6 warn package.json fs@0.0.2 fs is also the name of a node core module.
+7 warn package.json fs@0.0.2 No description
+8 warn package.json fs@0.0.2 No repository field.
+9 warn package.json fs@0.0.2 No README data
+10 warn package.json karma-chrome-launcher@0.1.5 No README data
+11 warn package.json node@0.0.0 No description
+12 warn package.json node@0.0.0 No repository field.
+13 warn package.json requests@0.0.1 No repository field.
+14 warn package.json requests@0.0.1 No README data
+15 warn package.json readline@0.0.5 readline is also the name of a node core module.
+16 verbose readDependencies using package.json deps
+17 verbose cache add [ 'mongodb.js', null ]
+18 verbose cache add name=undefined spec="mongodb.js" args=["mongodb.js",null]
+19 verbose parsed url { protocol: null,
+19 verbose parsed url   slashes: null,
+19 verbose parsed url   auth: null,
+19 verbose parsed url   host: null,
+19 verbose parsed url   port: null,
+19 verbose parsed url   hostname: null,
+19 verbose parsed url   hash: null,
+19 verbose parsed url   search: null,
+19 verbose parsed url   query: null,
+19 verbose parsed url   pathname: 'mongodb.js',
+19 verbose parsed url   path: 'mongodb.js',
+19 verbose parsed url   href: 'mongodb.js' }
+20 silly lockFile 39d7d780-mongodb-js mongodb.js
+21 verbose lock mongodb.js C:\Users\vikoltun\AppData\Roaming\npm-cache\39d7d780-mongodb-js.lock
+22 silly lockFile 39d7d780-mongodb-js mongodb.js
+23 silly lockFile 39d7d780-mongodb-js mongodb.js
+24 verbose addNamed [ 'mongodb.js', '' ]
+25 verbose addNamed [ null, '*' ]
+26 silly lockFile 41f381a2-mongodb-js mongodb.js@
+27 verbose lock mongodb.js@ C:\Users\vikoltun\AppData\Roaming\npm-cache\41f381a2-mongodb-js.lock
+28 silly addNameRange { name: 'mongodb.js', range: '*', hasData: false }
+29 verbose request where is /mongodb.js
+30 verbose request registry https://registry.npmjs.org/
+31 verbose request id 8334a2f7e5c413b9
+32 verbose url raw /mongodb.js
+33 verbose url resolving [ 'https://registry.npmjs.org/', './mongodb.js' ]
+34 verbose url resolved https://registry.npmjs.org/mongodb.js
+35 verbose request where is https://registry.npmjs.org/mongodb.js
+36 info trying registry request attempt 1 at 01:12:57
+37 http GET https://registry.npmjs.org/mongodb.js
+38 http 404 https://registry.npmjs.org/mongodb.js
+39 verbose headers { date: 'Wed, 19 Nov 2014 06:12:49 GMT',
+39 verbose headers   server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+39 verbose headers   'content-type': 'application/json',
+39 verbose headers   'cache-control': 'max-age=0',
+39 verbose headers   'content-length': '52',
+39 verbose headers   'accept-ranges': 'bytes',
+39 verbose headers   via: '1.1 varnish',
+39 verbose headers   age: '0',
+39 verbose headers   'x-served-by': 'cache-atl6234-ATL',
+39 verbose headers   'x-cache': 'MISS',
+39 verbose headers   'x-cache-hits': '0',
+39 verbose headers   'x-timer': 'S1416377569.405231,VS0,VE40',
+39 verbose headers   'keep-alive': 'timeout=10, max=50',
+39 verbose headers   connection: 'Keep-Alive' }
+40 silly registry.get cb [ 404,
+40 silly registry.get   { date: 'Wed, 19 Nov 2014 06:12:49 GMT',
+40 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+40 silly registry.get     'content-type': 'application/json',
+40 silly registry.get     'cache-control': 'max-age=0',
+40 silly registry.get     'content-length': '52',
+40 silly registry.get     'accept-ranges': 'bytes',
+40 silly registry.get     via: '1.1 varnish',
+40 silly registry.get     age: '0',
+40 silly registry.get     'x-served-by': 'cache-atl6234-ATL',
+40 silly registry.get     'x-cache': 'MISS',
+40 silly registry.get     'x-cache-hits': '0',
+40 silly registry.get     'x-timer': 'S1416377569.405231,VS0,VE40',
+40 silly registry.get     'keep-alive': 'timeout=10, max=50',
+40 silly registry.get     connection: 'Keep-Alive' } ]
+41 silly lockFile 41f381a2-mongodb-js mongodb.js@
+42 silly lockFile 41f381a2-mongodb-js mongodb.js@
+43 error 404 404 Not Found: mongodb.js
+43 error 404
+43 error 404 'mongodb.js' is not in the npm registry.
+43 error 404 You should bug the author to publish it
+43 error 404 It was specified as a dependency of 'ColdCast'
+43 error 404
+43 error 404 Maybe try 'npm search mongodb'
+43 error 404
+43 error 404 Note that you can also install from a
+43 error 404 tarball, folder, or http url, or git url.
+44 error System Windows_NT 6.1.7601
+45 error command "C:\\Program Files\\nodejs\\\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "mongodb.js" "--save"
+46 error cwd C:\Users\vikoltun\Documents\GitHub\ColdCast
+47 error node -v v0.10.32
+48 error npm -v 1.4.28
+49 error code E404
+50 verbose exit [ 1, true ]
