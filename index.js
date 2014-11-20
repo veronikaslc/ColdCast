@@ -10,7 +10,6 @@ var cheerio = require('cheerio');
 var winston = require('winston');
 //database
 var mongojs= require('mongojs');
-
 var db = mongojs('mydb');
 db.dropDatabase();
 db.on('ready',function() {
@@ -26,9 +25,6 @@ app.use(express.static(__dirname+'/public'));
 
 var API_key = '7efdf026c7705a541d3bdd32bb344712';
 
-//var result10API;
-//var result10scrapped;
-//var result = [];
 var cities_file  = 'city_list.txt';
 var cities = [];
 var lastAPIresult = [];
@@ -51,12 +47,6 @@ function repeatCalls() {
     timerScrap = setInterval( getScarappedData, 10*60*1000);
 }
 
-// find everything
-//weatherAPI.find(function(err, docs) {
-    // docs is an array of all the documents in mycollection
-//});
-
-
 // ---ROUTONG---
 app.get('/weather', function (req, resp) {
     weatherAPI.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
@@ -65,7 +55,6 @@ app.get('/weather', function (req, resp) {
                 console.log('weather API: sending response json');
                 resp.json(doc);
             });
-
         } else {
             console.log('found something');
             console.log(doc);
@@ -169,10 +158,9 @@ function scrap(url, i){
     request(url, function(err, res, html) {
         // build the "DOM" object, representing the structure of the HTML page just fetched
         var $ = cheerio.load(html);
-        //logger.log('info',html);
         var text = $(".wob_t").eq(0).text();
         scrapCitiesList[i].scraptemp = text.substring(0, text.length-2);
-        console.log('scrapping city: '+i+' '+scrapCitiesList[i].name +' '+scrapCitiesList[i].scraptemp);
+        logger.info('scrapping city: '+i+' '+scrapCitiesList[i].name +' '+scrapCitiesList[i].scraptemp);
     });
 }
 
@@ -229,11 +217,9 @@ function getScarappedData(callback){
             }
 
         }, 3000);
-
-
 }
 
-// example of scrapping of single page:
+// scrapping of single page:
 /*request('https://www.google.ca/search?q=waterloo+canada+weather', function(err, res, html) {
     // build the "DOM" object, representing the structure of the HTML page just fetched
     var $ = cheerio.load(html);

@@ -15,7 +15,7 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
     function initialize() {
 
         var mapOptions = {
-            center: { lat: 61.614841, lng: -101.776904},
+            center: { lat: 60.614841, lng: -101.776904},
             zoom: 4
         };
         map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
