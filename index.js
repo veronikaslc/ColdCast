@@ -228,7 +228,7 @@ function getScarappedData(callback){
                 j++;
             }
 
-        }, 3000);
+        }, 80);
 
 
 }
