@@ -33,7 +33,7 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
         for (var i=0; i< $scope.cities.length; i++) {
             (function(i) {
                 markers[i].addListener('click', function () {
-                    infowindow.setContent($scope.cities[i].name + ' Current Temp: ' + $scope.cities[i].temp);
+                    infowindow.setContent($scope.cities[i].name + ' Temp: ' + $scope.cities[i].temp);
                     infowindow.open(map, this);
                 });
             }(i))
