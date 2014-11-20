@@ -7,8 +7,39 @@ var myApp = angular.module('myApp',[]);
 myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
 
     var nIntervId;
-   // $scope.map = {center: {latitude: 40.1451, longitude: -99.6680 }, zoom: 4, bounds: {}};
-   // $scope.options = {scrollwheel: false};
+    var map;
+    var markers =[];
+    var vi;
+    function initialize() {
+
+        var mapOptions = {
+            center: { lat: 61.614841, lng: -101.776904},
+            zoom: 4
+        };
+        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+        var infowindow = new google.maps.InfoWindow();
+
+        for (var j=0; j< $scope.cities.length; j++) {
+             markers[j] = new google.maps.Marker({
+                position: new google.maps.LatLng($scope.cities[j].lat, $scope.cities[j].lon) ,
+                map: map,
+                title: 'City: ' + $scope.cities[j].name + ' Temp: ' + $scope.cities[j].temp
+            });
+        }
+
+        for (var i=0; i< $scope.cities.length; i++) {
+            vi = i;
+            markers[i].addListener('click', function () {
+                infowindow.setContent($scope.cities[vi].name + ' Current Temp: ' + $scope.cities[vi].temp);
+                infowindow.open(map, this);
+            });
+        }
+
+    }
+
+    //google.maps.event.addDomListener(window, 'load', initialize);
+
     //Do not send requests more then 1 time per 10 minutes from one device. Normally the weather is not changing so frequently
     function repeatCalls() {
         nIntervId = window.setInterval(onGetList, 10*60*1000);
@@ -17,15 +48,7 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
     function renderServicesgetAPI(response) {
         $scope.dataAPI = JSON.stringify(response.data);
         $scope.cities = response.data;
-        for(var i in $scope.cities){
-            var ret = {
-                latitude: $scope.cities[i].lat,
-                longitude: $scope.cities[i].lon,
-                title: $scope.cities[i].name,
-                id:i
-            };
-            $scope.points.push(ret);
-        }
+        initialize();
     }
 
     function renderServicesgetScrap(response) {

@@ -8,10 +8,13 @@
     <script src="lib/angular-resource.js"></script>
     <script src="js/controllers/controller.js"></script>
 
-    <style>
-        .angular-google-map-container { height: 400px; }
+    <style type="text/css">
+         #map-canvas { height: 50%; margin: 0; padding: 0; width: 1200px; height: 600px;}
     </style>
-</head>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GFeJLHWBPNwihIHHO6n-7Tpie7ayqCk"></script>
+
+
+        </head>
 <body ng-app="myApp" style="top:10px; margin: 10px;">
 <div  ng-controller ="MainController">
     <span style="font-size: 10px; color: blue;">Raw response for weather API:  {{dataAPI}} </span>
@@ -39,11 +42,14 @@
             </td>
         </tr>
     </table>
-<h2>Dear Alex, now it's interactive! Жми кнопки - получай удовольствие:))</h2>
+<h2> now it's interactive!</h2>
     Recall API to refresh
     <button class="btn btn-primary"  ng-click='getListAPI()'>API refresh</button>
 Recall Scrapping to refresh
     <button class="btn btn-primary"  ng-click='getListScrap()'>Scrapping refresh</button>
+
+    <div id="map-canvas"></div>
+
 
 </div>
 

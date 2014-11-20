@@ -7,7 +7,7 @@ describe('twitter home page', function(){
         prot.sleep(200);
     });
 
-    it('login check', function(){
+    it(' check', function(){
         prot.get(url);
         expect(prot.getTitle()).toBe('ColdCast Webapp');
     });
