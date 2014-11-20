@@ -31,11 +31,12 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
         }
 
         for (var i=0; i< $scope.cities.length; i++) {
-            vi = i;
-            markers[i].addListener('click', function () {
-                infowindow.setContent($scope.cities[vi].name + ' Current Temp: ' + $scope.cities[vi].temp);
-                infowindow.open(map, this);
-            });
+            (function(i) {
+                markers[i].addListener('click', function () {
+                    infowindow.setContent($scope.cities[i].name + ' Current Temp: ' + $scope.cities[i].temp);
+                    infowindow.open(map, this);
+                });
+            }(i))
         }
 
     }
