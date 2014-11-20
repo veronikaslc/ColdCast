@@ -50,14 +50,21 @@ function repeatCalls() {
 // ---ROUTONG---
 app.get('/weather', function (req, resp) {
     weatherAPI.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
+        if (err) {
+            logger.info(err);
+            var data = getAIPdata(function(doc){
+                logger.info('weather API: sending response json');
+                resp.json(doc);
+            });
+        }
         if (!doc) {
             var data = getAIPdata(function(doc){
-                console.log('weather API: sending response json');
+                logger.info('weather API: sending response json');
                 resp.json(doc);
             });
         } else {
-            console.log('found something');
-            console.log(doc);
+            logger.info('found something');
+            logger.info(doc);
             resp.json(doc);
         }
 
@@ -66,9 +73,16 @@ app.get('/weather', function (req, resp) {
 
 app.get('/weatherscrap', function (req, resp) {
     weatherScrap.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
+        if (err) {
+            logger.info(err);
+            var data = getScarappedData(function(doc){
+                logger.info('Scrapping: sending response json');
+                resp.json(doc);
+            });
+        }
         if (!doc) {
             var data = getScarappedData(function(doc){
-                console.log('Scrapping: sending response json');
+                logger.info('Scrapping: sending response json');
                 resp.json(doc);
             });
         } else {
@@ -78,7 +92,19 @@ app.get('/weatherscrap', function (req, resp) {
     });
 });
 
+app.get('/weather/refresh', function (req, resp) {
+    var data = getAIPdata(function(doc){
+        logger.info('weather API: sending response json');
+        resp.json(doc);
+    });
+});
 
+app.get('/weatherscrap/refresh', function (req, resp) {
+    var data = getScarappedData(function(doc){
+        logger.info('Scrapping: sending response json');
+        resp.json(doc);
+    });
+});
 
 //---HELPER FUNCTIONS---------------------------------
 
@@ -118,6 +144,9 @@ function compareAPI(a,b) {
 function getAIPdata(callback){
     logger.info('weather API: getting 10 coldest cities');
     request(real_url, function(error, resp, body) {
+        if (error) {
+            logger.info(error);
+        }
         var doc = JSON.parse(body).list;
         doc.sort(compareAPI);
         var result10 = doc.slice(0, 10);
@@ -156,6 +185,9 @@ function getAIPdata(callback){
 //scrapping helper function
 function scrap(url, i){
     request(url, function(err, res, html) {
+        if (err) {
+            logger.info(err);
+        }
         // build the "DOM" object, representing the structure of the HTML page just fetched
         var $ = cheerio.load(html);
         var text = $(".wob_t").eq(0).text();
@@ -226,5 +258,5 @@ function getScarappedData(callback){
     console.log($(".wob_t").eq(0).text());
 });*/
 
-app.listen(80);
+app.listen(3000);
 

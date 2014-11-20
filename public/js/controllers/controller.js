@@ -66,6 +66,16 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
             .success(renderServicesgetScrap);
     };
 
+    $scope.getListAPIrefresh = function() {
+        $http.get('/weather/refresh')
+            .success(renderServicesgetAPI);
+    };
+
+    $scope.getListScrapRefresh = function(){
+        $http.get('/weatherscrap/refresh')
+            .success(renderServicesgetScrap);
+    };
+
     function onGetList() {
         $scope.getListAPI();
         $scope.getListScrap();
