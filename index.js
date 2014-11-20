@@ -150,37 +150,41 @@ function getAIPdata(callback){
         var doc;
         try {
              doc = JSON.parse(body).list;
+            doc.sort(compareAPI);
+            var result10 = doc.slice(0, 10);
+            var result = [];
+            for (var k in result10) {
+                result.push({id: result10[k].id, name: result10[k].name, lat: result10[k].coord.lat, lon: result10[k].coord.lon, temp: result10[k].main.temp, timestamp: new Date()});
+            }
+
+            lastAPIresult = result;
+
+            var result10API = {timestamp: new Date(), data: result};
+            logger.info('weather API: got cities:');
+            logger.info(result10API);
+//recording in database
+            weatherAPI.insert(result10API, function(err, doc){
+                if (err) {
+                    logger.info(err);
+                    if (callback) {
+                        callback(null);
+                    }
+                }
+                else {
+                    logger.info('new database entry from API ' + doc);
+                    if (callback) {
+                        callback(doc);
+                    }
+                }
+            });
         }
         catch(err) {
             logger.info(err);
-        }
-        doc.sort(compareAPI);
-        var result10 = doc.slice(0, 10);
-        var result = [];
-        for (var k in result10) {
-            result.push({id: result10[k].id, name: result10[k].name, lat: result10[k].coord.lat, lon: result10[k].coord.lon, temp: result10[k].main.temp, timestamp: new Date()});
+            if (callback) {
+                callback(null);
+            }
         }
 
-        lastAPIresult = result;
-
-        var result10API = {timestamp: new Date(), data: result};
-        logger.info('weather API: got cities:');
-        logger.info(result10API);
-//recording in database
-        weatherAPI.insert(result10API, function(err, doc){
-            if (err) {
-                logger.info(err);
-                if (callback) {
-                    callback(null);
-                }
-            }
-            else {
-                logger.info('new database entry from API ' + doc);
-                if (callback) {
-                    callback(doc);
-                }
-            }
-        });
 
     });
 
