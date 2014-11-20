@@ -1,62 +1,157 @@
 <!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="ColdCast web app">
+    <meta name="author" content="Veronika Koltunova">
     <title>ColdCast Webapp</title>
-    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/portfolio-item.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
     <script src="lib/angular.js"></script>
     <script src="lib/angular-resource.js"></script>
     <script src="js/controllers/controller.js"></script>
 
     <style type="text/css">
-         #map-canvas { height: 50%; margin: 0; padding: 0; width: 1200px; height: 600px;}
+        #map-canvas { height: 50%; margin: 0; padding: 0; width: 1200px; height: 600px;}
     </style>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GFeJLHWBPNwihIHHO6n-7Tpie7ayqCk"></script>
 
 
-        </head>
-<body ng-app="myApp" style="top:10px; margin: 10px;">
-<div  ng-controller ="MainController">
-    <span style="font-size: 10px; color: blue;">Raw response for weather API:  {{dataAPI}} </span>
-    <br/>
-    <span style="font-size: 10px; color: blue;">Raw response for scrapped data:  {{dataScrap}} </span>
-    <h2>And our leaders for now:</h2>
-    <table style="background-color: deepskyblue;">
-        <tr ng-repeat="item in cities">
-            <td >
-                <div >City: {{item.name}} ; </div>
-            </td>
-            <td >
-                <div > Temperature: {{item.temp}}</div>
-            </td>
-        </tr>
-    </table>
+</head>
 
-    <table style="background-color: deepskyblue;">
-        <tr ng-repeat="item in citiesScrap">
-            <td >
-                <div >Scarpped City: {{item.name}} ; </div>
-            </td>
-            <td >
-                <div >Scrapped Temperature: {{item.scraptemp}}</div>
-            </td>
-        </tr>
-    </table>
-<h2> now it's interactive!</h2>
-    Recall API to refresh
-    <button class="btn btn-primary"  ng-click='getListAPI()'>API refresh</button>
-Recall Scrapping to refresh
-    <button class="btn btn-primary"  ng-click='getListScrap()'>Scrapping refresh</button>
+<body ng-app="myApp">
 
-    <div id="map-canvas"></div>
+    <div  ng-controller ="MainController">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">ColdCast: the 10 coldest cities in Canada</a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a href="#" ng-click='getListAPI()'>API refresh</a>
+                        </li>
+                        <li>
+                            <a href="#" ng-click='getListScrap()'>Scrapping refresh</a>
+                        </li>
+
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container -->
+        </nav>
+
+        <!-- Page Content -->
+        <div class="container">
+
+            <!-- Portfolio Item Heading -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">ColdCast:
+                        <small>the 10 coldest cities in Canada</small>
+                        <a class="btn btn-default" href="https://github.com/veronikaslc/ColdCast" target="_blank" style="margin-left: 294px;"><i class="fa fa-github"></i> View Source on GitHub</a>
+
+                    </h1>
+
+                </div>
+            </div>
+            <!-- /.row -->
+
+            <!-- Portfolio Item Row -->
+            <div class="row">
+
+                <div class="col-md-8">
+                    <div style="background-color:gray; width: 750px; height: 500px;" id="map-canvas"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <h3>Application Description</h3>
+                    <p>Traditional MEAN web application, built using MongoDB, Express, AngularJS, and Node.js.
+                        The current weather data aggregates to the database from two sources on the back-end:
+                        a) via API calls to OpenWeatherMap; b)via scrapping google search result pages
+                        </p>
+                    <h3>Currently 10 coldest cities </h3>
+                    <table style="background-color: lavender; border: 1px solid #c0c0c0; width: 350px;" cellpadding="10">
+                        <tr >
+                            <td >
+                                <div >Cities API </div>
+                            </td>
+                            <td >
+                                <div >Temp</div>
+                            </td>
+                            <td >
+                                <div > Scrapped Cities</div>
+                            </td>
+                            <td >
+                                <div > Temp</div>
+                            </td>
+                        </tr>
+
+                        <tr ng-repeat="item in cities">
+                            <td >
+                                <div >{{item.name}} </div>
+                            </td>
+                            <td >
+                                <div >{{item.temp}}</div>
+                            </td>
+                            <td >
+                                <div > {{citiesScrap[$index].name}}</div>
+                            </td>
+                            <td >
+                                <div > {{citiesScrap[$index].scraptemp}}</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+            <!-- /.row -->
 
 
-</div>
 
+            <hr>
 
+            <!-- Footer -->
+            <footer>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p>Copyright &copy; ColdCast TM 2014</p>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </footer>
 
+        </div>
+        <!-- /.container -->
+
+    </div>
 </body>
+
 </html>
-
-
-

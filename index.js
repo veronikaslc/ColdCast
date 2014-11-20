@@ -178,9 +178,9 @@ function scrap(url, i){
 
 //sorting function for scrapping array
 function compareScrap(a,b) {
-    if (a.scraptemp < b.scraptemp)
+    if (parseInt(a.scraptemp) < parseInt(b.scraptemp))
         return -1;
-    if (a.scraptemp > b.scraptemp)
+    if (parseInt(a.scraptemp) > parseInt(b.scraptemp))
         return 1;
     return 0;
 }
