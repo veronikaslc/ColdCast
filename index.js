@@ -147,7 +147,13 @@ function getAIPdata(callback){
         if (error) {
             logger.info(error);
         }
-        var doc = JSON.parse(body).list;
+        var doc;
+        try {
+             doc = JSON.parse(body).list;
+        }
+        catch(err) {
+            logger.info(err);
+        }
         doc.sort(compareAPI);
         var result10 = doc.slice(0, 10);
         var result = [];
