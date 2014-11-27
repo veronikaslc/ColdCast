@@ -39,6 +39,8 @@ var logger = new (winston.Logger) ({
     ]
 });
 
+console.log(3+5+'a'+'b');
+
 buildURL();
 repeatCalls();
 
@@ -177,14 +179,12 @@ function getAIPdata(callback){
                     }
                 }
             });
-        }
-        catch(err) {
+        } catch(err) {
             logger.info(err);
             if (callback) {
                 callback(null);
             }
         }
-
 
     });
 
@@ -198,11 +198,16 @@ function scrap(url, i){
         if (err) {
             logger.info(err);
         }
-        // build the "DOM" object, representing the structure of the HTML page just fetched
-        var $ = cheerio.load(html);
-        var text = $(".wob_t").eq(0).text();
-        scrapCitiesList[i].scraptemp = text.substring(0, text.length-2);
-        logger.info('scrapping city: '+i+' '+scrapCitiesList[i].name +' '+scrapCitiesList[i].scraptemp);
+        try {
+            // build the "DOM" object, representing the structure of the HTML page just fetched
+            var $ = cheerio.load(html);
+            var text = $(".wob_t").eq(0).text();
+            scrapCitiesList[i].scraptemp = text.substring(0, text.length-2);
+            logger.info('scrapping city: '+i+' '+scrapCitiesList[i].name +' '+scrapCitiesList[i].scraptemp);
+        }  catch(err) {
+            logger.info(err);
+            scrapCitiesList[i].scraptemp = null;
+        }
     });
 }
 
@@ -268,5 +273,5 @@ function getScarappedData(callback){
     console.log($(".wob_t").eq(0).text());
 });*/
 
-app.listen(80);
+app.listen(3000);
 
