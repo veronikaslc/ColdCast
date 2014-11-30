@@ -2,7 +2,7 @@ ColdCast
 ========
 
 A web-based weather application that displays the 10 coldest cities in Canada along with current temperatures.
-Website link (deployed to EC2): http://ec2-54-76-46-221.eu-west-1.compute.amazonaws.com/#.
+Website link (deployed to EC2): [demo](http://ec2-54-194-35-254.eu-west-1.compute.amazonaws.com/).
 
 ColdCast is a traditional MEAN web application, built using [MongoDB](http://docs.mongodb.org/), [Express](http://expressjs.com/), [AngularJS](http://angularjs.org/), and [Node.js](http://nodejs.org/). The current weather data aggregates to the database from two sources on the back-end: a) via API calls to [OpenWeatherMap](openweathermap.org); b)via scraping google search result pages.
 Calls for weather API and scraping are send once every 10 minutes. Normally the weather is not changing so frequently, and also the excessive API calls are not free, as well as a frequent requests to google search for scraping will produce suspicious activity and can result in blocking.
