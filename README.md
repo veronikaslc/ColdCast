@@ -30,11 +30,11 @@ Database:
 
 Install [MongoDB](http://docs.mongodb.org/manual/installation/)
 
-You should start database with 
+You should start database from mongod bin directory (usually C:\Program Files\MongoDB 2.6 Standard\bin) with 
 
-    mongod --dbpath=/home/[db path]/data --port 27017
+    mongod --dbpath=/home/[db path]/data --port 27017 --smallfiles
 
-Application start:
+The default db path is data/db. Application start:
 
     sudo node index.js
 
