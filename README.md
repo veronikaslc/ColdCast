@@ -28,7 +28,7 @@ Install dependencies:
 
 Database:
 
-Install [MongoDB](http://docs.mongodb.org/manual/installation/)
+Install [MongoDB](http://docs.mongodb.org/manual/installation/) (required to manually add path to mongod.exe folder to env variables)
 
 You should start database from mongod bin directory (usually C:\Program Files\MongoDB 2.6 Standard\bin) with 
 
@@ -38,7 +38,7 @@ The default db path is data/db. Application start:
 
     sudo node index.js
 
-Application runs on a default port :80. 
+Application runs on a default port :3000. 
 
 Logs: 
 

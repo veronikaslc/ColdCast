@@ -8,6 +8,7 @@ var request = require('request');
 var cheerio = require('cheerio');
 //logging
 var winston = require('winston');
+var async = require('async');
 //database
 var mongojs= require('mongojs');
 var db = mongojs('mydb');
@@ -17,19 +18,20 @@ db.on('ready',function() {
 });
 
 var weatherAPI = db.collection('weatherAPI');
-var weatherScrap = db.collection('weatherScrap');
+db.weatherAPI.createIndex( { "id": 1 }, { unique: true } );
 
 app = express();
 
 app.use(express.static(__dirname+'/public'));
 
-var API_key = '7efdf026c7705a541d3bdd32bb344712';
+var API_key = '2d37b577474d2e7f46d8f8f0f324239d';
 
-var cities_file  = 'city_list.txt';
+var cities_file  = 'city.list.json';
 var cities = [];
 var lastAPIresult = [];
 var scrapCitiesList;
 var timerAPI, timerScrap;
+var calls_number = 0;
 
 //logger setup
 var logger = new (winston.Logger) ({
@@ -39,155 +41,145 @@ var logger = new (winston.Logger) ({
     ]
 });
 
-console.log(3+5+'a'+'b');
+//console.log(3+5+'a'+'b');
 
-buildURL();
+buildCitiesArray();
 repeatCalls();
 
 function repeatCalls() {
-    timerAPI = setInterval( getAIPdata, 10*60*1000);
-    timerScrap = setInterval( getScarappedData, 10*60*1000);
+    timerAPI = setInterval( buildDBfromAPI, 10*600*1000);
 }
 
 // ---ROUTONG---
 app.get('/weather', function (req, resp) {
-    weatherAPI.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
-        if (err) {
+	weatherAPI.find().sort({'temp':1}).limit(10).toArray(function(err, items) {
+		if (err || !items) {
             logger.info(err);
-            var data = getAIPdata(function(doc){
-                logger.info('weather API: sending response json');
-                resp.json(doc);
-            });
-        }
-        if (!doc) {
-            var data = getAIPdata(function(doc){
-                logger.info('weather API: sending response json');
-                resp.json(doc);
-            });
         } else {
-            logger.info('found something');
-            logger.info(doc);
-            resp.json(doc);
+            logger.info('found something, sending response: ');
+            logger.info(items);
+			lastAPIresult = items;
+            resp.json(items);
+			
         }
-
-    });
-});
-
-app.get('/weatherscrap', function (req, resp) {
-    weatherScrap.findOne({timestamp: {$gte: new Date( (new Date()) - 10*60*1000 )}},  function(err, doc){
-        if (err) {
-            logger.info(err);
-            var data = getScarappedData(function(doc){
-                logger.info('Scrapping: sending response json');
-                resp.json(doc);
-            });
-        }
-        if (!doc) {
-            var data = getScarappedData(function(doc){
-                logger.info('Scrapping: sending response json');
-                resp.json(doc);
-            });
-        } else {
-            resp.json(doc);
-        }
-
-    });
+	});
 });
 
 app.get('/weather/refresh', function (req, resp) {
-    var data = getAIPdata(function(doc){
+    var data = buildDBfromAPI( function() {
         logger.info('weather API: sending response json');
-        resp.json(doc);
+        weatherAPI.find().sort({'temp':1}).limit(10).toArray(function(err, items) {
+		if (err || !items) {
+            logger.info(err);
+        } else {
+            logger.info('found something, sending response: ');
+            logger.info(items);
+			lastAPIresult = items;
+            resp.json(items);
+			
+        }
+	});
     });
 });
 
 app.get('/weatherscrap/refresh', function (req, resp) {
-    var data = getScarappedData(function(doc){
-        logger.info('Scrapping: sending response json');
-        resp.json(doc);
-    });
+    getScarappedData(function(data) {
+        logger.info('weather API: sending response json');
+        resp.json(data);
+	})
 });
 
 //---HELPER FUNCTIONS---------------------------------
 
 
 //---API based part---
-function buildURL(){
+//var test_url = 'http://api.openweathermap.org/data/2.5/group?id=707860&units=metric&APPID='+API_key;
+function buildCitiesArray(){
+	var urls = [];
     //reading canadian cities from the file of all cities
+	logger.info('reading canadian cities from the file of all cities');
     var fs = require('fs');
-    var array = fs.readFileSync(cities_file).toString().split("\n");
-    for(var i in array) {
-        var str = array[i].split("\t");
-        if (str[4] == 'CA') {
-            cities.push({id: str[0], name: str[1], lat: str[2], lon: str[3]});
-        }
-    }
 
-//assembling  IDs to form the url for API call
-    var id_list='';
-    for (var j in cities) {
-        id_list = id_list + ',' + cities[j].id;
-    }
-    id_list = id_list.substring(1, id_list.length);
-//building URL
-    real_url ='http://api.openweathermap.org/data/2.5/group?id=' + id_list +'&units=metric&APPID='+API_key;
-//var test_url = 'http://api.openweathermap.org/data/2.5/group?id='+toronto_code+',1416034212&APPID='+API_key;
+	fs.readFile('canada_cities.json', 'utf8', function readFileCallback(err, data){
+		if (err){
+			console.log(err);
+			var array = JSON.parse(fs.readFileSync(cities_file, 'utf8'));
+			for (var i in array) {
+				var city = array[i];
+				if (city.country == 'CA') {
+					city.url ='http://api.openweathermap.org/data/2.5/group?id=' + city.id +'&units=metric&APPID='+API_key;
+					cities.push(city);
+				}
+			}
+			json = JSON.stringify(cities);
+			fs.writeFile('canada_cities.json', json, 'utf8');
+			logger.info('file with canadian cities created,total cities: ' + cities.length);
+			buildDBfromAPI( function() {getScarappedData();});
+		} else {
+			cities = JSON.parse(data);
+			logger.info('file with canadian cities exisit,total cities: ' + cities.length);
+			buildDBfromAPI( function() {getScarappedData();});
+		}
+	});
+
+    //assembling  IDs to form the url for API call
+    logger.info('assembling  IDs to form the url for API call, total Canadian cities:' + cities.length); 
 }
 
-//sorting function for respond array from weather API
-function compareAPI(a,b) {
-    if (a.main.temp < b.main.temp)
-        return -1;
-    if (a.main.temp > b.main.temp)
-        return 1;
-    return 0;
+function buildDBfromAPI(callback) {
+	logger.info('Building / updating DB for all canadian cities');
+	//cities = cities.slice(0, 5);
+	async.each( cities,
+	            function(city, recordDoc) {
+				    getAIPdata(city, recordDoc);
+				},
+				function(err) {
+					// when all the elements in the array are processed, this is called
+					if (err) logger.info(err);
+					callback(); 
+				}
+	);
 }
 
-function getAIPdata(callback){
-    logger.info('weather API: getting 10 coldest cities');
-    request(real_url, function(error, resp, body) {
+function getAIPdata(city, callback) {
+    //logger.info('Getting API data for one cities');
+	var url = city.url;
+    request(url, function(error, resp, body) {
         if (error) {
+			logger.info('ERROR getAIPdata response: for url: ' + url);
             logger.info(error);
         }
-        var doc;
+		//logger.info('getAIPdata response: for url: ' + url);
         try {
-             doc = JSON.parse(body).list;
-            doc.sort(compareAPI);
-            var result10 = doc.slice(0, 10);
-            var result = [];
-            for (var k in result10) {
-                result.push({id: result10[k].id, name: result10[k].name, lat: result10[k].coord.lat, lon: result10[k].coord.lon, temp: result10[k].main.temp, timestamp: new Date()});
-            }
-
-            lastAPIresult = result;
-
-            var result10API = {timestamp: new Date(), data: result};
-            logger.info('weather API: got cities:');
-            logger.info(result10API);
-//recording in database
-            weatherAPI.insert(result10API, function(err, doc){
-                if (err) {
-                    logger.info(err);
-                    if (callback) {
-                        callback(null);
-                    }
-                }
-                else {
-                    logger.info('new database entry from API ' + doc);
-                    if (callback) {
-                        callback(doc);
-                    }
-                }
-            });
+            result = JSON.parse(body).list;
+            if (result && result[0]) {
+                var doc = {id: result[0].id, name: result[0].name, lat: result[0].coord.lat, lon: result[0].coord.lon, temp: result[0].main.temp, timestamp: new Date()};
+				if (result[0].main.temp && (result[0].main.temp < -50 || result[0].main.temp > 50)) {
+					logger.info('UBNORMAL TEMP ' + JSON.stringify(doc.temp));
+				}
+				recordDoc(doc);
+			}
         } catch(err) {
-            logger.info(err);
-            if (callback) {
-                callback(null);
-            }
+            logger.info('ERROR getAIPdata ' + err);
         }
-
     });
+}
 
+//recording single doc in database or update existing
+function recordDoc(doc) {
+	//logger.info('recording one DB record:' + JSON.stringify(doc) + ' to '+ JSON.stringify(weatherAPI));
+    var myquery = { id: doc.id };
+    var newvalues = { $set: doc };
+	weatherAPI.update(myquery, newvalues, { upsert: true }, function(err, doc){
+		if (err) {
+			logger.info('ERROR recordDoc: ' + err);
+		}
+		else {
+			if (doc.temp && (doc.temp < -50 || doc.temp > 50)) {
+				logger.info('new database entry from API ' + JSON.stringify(doc.temp));
+			}
+		}
+	});
 }
 
 //-----SCRAPPING part---
@@ -204,6 +196,7 @@ function scrap(url, i){
             var text = $(".wob_t").eq(0).text();
             scrapCitiesList[i].scraptemp = text.substring(0, text.length-2);
             logger.info('scrapping city: '+i+' '+scrapCitiesList[i].name +' '+scrapCitiesList[i].scraptemp);
+			recordDoc(scrapCitiesList[i]);
         }  catch(err) {
             logger.info(err);
             scrapCitiesList[i].scraptemp = null;
@@ -211,58 +204,27 @@ function scrap(url, i){
     });
 }
 
-//sorting function for scrapping array
-function compareScrap(a,b) {
-    if (parseInt(a.scraptemp) < parseInt(b.scraptemp))
-        return -1;
-    if (parseInt(a.scraptemp) > parseInt(b.scraptemp))
-        return 1;
-    return 0;
-}
-
-function getScarappedData(callback){
+function getScarappedData(callback) {
     logger.info('scrapping: getting 10 coldest cities');
 
-        if (lastAPIresult.length >0) {
+        if (lastAPIresult.length > 0) {
             scrapCitiesList = lastAPIresult;
-        }else {
+        } else {
             scrapCitiesList = cities.slice(0, 10);
         }
 
         //timing scrapping for 10 seconds
         var j=0;
         var timer2 = setInterval(function () {
-
             if ( j == 10 ) {
-
                 clearTimeout(timer2);
-
-                scrapCitiesList.sort(compareScrap);
-
-                var result10scrapped = {timestamp: new Date(), data: scrapCitiesList};
-                logger.info('Scrapping: got cities:');
-                logger.info(result10scrapped);
-                //recording in database
-                weatherScrap.insert(result10scrapped, function(err, doc){
-                    if (err){
-                        logger.info(err);
-                        if (callback) {
-                            callback(null);
-                        }
-                    }
-                    else{
-                        logger.info('new database entry from scrapping ' + doc);
-                        if (callback) {
-                            callback(doc);
-                        }
-                    }
-                });
+                logger.info('Scrapping done');
+				callback && callback(scrapCitiesList);
             }
             else {
                 scrap('https://www.google.ca/search?q=' + scrapCitiesList[j].name + '+canada+weather', j);
                 j++;
             }
-
         }, 3000);
 }
 

@@ -47,24 +47,18 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
     }
 
     function renderServicesgetAPI(response) {
-        $scope.dataAPI = JSON.stringify(response.data);
-        $scope.cities = response.data;
+        $scope.dataAPI = JSON.stringify(response);
+        $scope.cities = response;
         initialize();
     }
 
     function renderServicesgetScrap(response) {
         $scope.dataScrap = JSON.stringify(response.data);
-        $scope.citiesScrap = response.data;
     }
 
     $scope.getListAPI = function() {
         $http.get('/weather')
             .success(renderServicesgetAPI);
-    };
-
-    $scope.getListScrap = function(){
-        $http.get('/weatherscrap')
-            .success(renderServicesgetScrap);
     };
 
     $scope.getListAPIrefresh = function() {
@@ -74,12 +68,11 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
 
     $scope.getListScrapRefresh = function(){
         $http.get('/weatherscrap/refresh')
-            .success(renderServicesgetScrap);
+            .success(renderServicesgetAPI);
     };
 
     function onGetList() {
         $scope.getListAPI();
-        $scope.getListScrap();
     }
 
     onGetList();
