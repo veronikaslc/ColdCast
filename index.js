@@ -53,6 +53,7 @@ var initDb = function(callback) {
     }
 
     db = conn;
+    db.dropDatabase();
     dbDetails.databaseName = db.databaseName;
     dbDetails.url = mongoURLLabel;
     dbDetails.type = 'MongoDB';
@@ -67,7 +68,7 @@ initDb(function(err){
 
 //var mongojs= require('mongojs');
 //var db = mongojs('mydb');
-db.dropDatabase();
+
 db.on('ready', function() {
     console.log('database connected');
 });
