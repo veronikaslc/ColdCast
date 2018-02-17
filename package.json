@@ -4,8 +4,7 @@
   "description": "a web based weather application that displays the 10 coldest cities in Canada along with the temperature.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
