@@ -62,7 +62,7 @@ var initDb = function(callback) {
     dbDetails.url = mongoURLLabel;
     dbDetails.type = 'MongoDB';
     weatherAPI = db.collection('weatherAPI');
-    db.weatherAPI.createIndex( { "id": 1 }, { unique: true } );
+    weatherAPI.createIndex( { "id": 1 }, { unique: true } );
     buildCitiesArray();
 
     console.log('Connected to MongoDB at: %s', mongoURL);
