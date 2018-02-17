@@ -37,6 +37,7 @@ if (mongoURL == null && process.env.DATABASE_SERVICE_NAME) {
 
   }
 }
+var weatherAPI = null;
 var db = null,
     dbDetails = new Object();
 
@@ -54,9 +55,15 @@ var initDb = function(callback) {
 
     db = conn;
     db.dropDatabase();
+    db.on('ready', function() {
+        console.log('database connected');
+    });
     dbDetails.databaseName = db.databaseName;
     dbDetails.url = mongoURLLabel;
     dbDetails.type = 'MongoDB';
+    weatherAPI = db.collection('weatherAPI');
+    db.weatherAPI.createIndex( { "id": 1 }, { unique: true } );
+    buildCitiesArray();
 
     console.log('Connected to MongoDB at: %s', mongoURL);
   });
@@ -68,12 +75,6 @@ initDb(function(err){
 
 //var mongojs= require('mongojs');
 //var db = mongojs('mydb');
-
-db.on('ready', function() {
-    console.log('database connected');
-});
-var weatherAPI = db.collection('weatherAPI');
-db.weatherAPI.createIndex( { "id": 1 }, { unique: true } );
 
 app = express();
 // express.static middleware in an Express app:
@@ -101,7 +102,7 @@ var logger = new (winston.Logger) ({
 
 //console.log(3+5+'a'+'b');
 
-buildCitiesArray();
+
 repeatCalls();
 
 function repeatCalls() {
