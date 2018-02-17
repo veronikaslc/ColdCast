@@ -4,7 +4,8 @@
   "description": "a web based weather application that displays the 10 coldest cities in Canada along with the temperature.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "IP=0.0.0.0 PORT=3030 mocha --timeout 5000 tests/*_test.js"
   },
   "repository": {
     "type": "git",
@@ -29,13 +30,24 @@
     "cheerio": "^0.18.0",
     "express": "^4.10.2",
     "fs": "0.0.2",
-    "mongodb": "3.0.2",
     "mongojs": "2.5.0",
     "node": "0.0.0",
     "protractor": "^1.4.0",
     "readline": "0.0.5",
     "request": "^2.48.0",
-    "winston": "^0.8.3"
+    "winston": "^0.8.3",
+    "mongodb": "^2.1.16",
+    "morgan": "^1.7.0",
+    "object-assign":"4.1.0",
+    "chai": "^3.5.0",
+    "chai-http": "^2.0.1",
+    "ejs": "^2.4.1",
+    "express": "^4.13.4",
+    "mocha": "^2.4.5"
+  },
+  "engine": {
+    "node": "*",
+    "npm": "*"
   },
   "devDependencies": {
     "karma": "^0.12.25",
