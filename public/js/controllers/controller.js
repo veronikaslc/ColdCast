@@ -24,16 +24,16 @@ myApp.controller('MainController', ['$scope', '$http', function($scope, $http) {
 
         for (var j=0; j< $scope.cities.length; j++) {
              markers[j] = new google.maps.Marker({
-                position: new google.maps.LatLng($scope.cities[j].lat, $scope.cities[j].lon) ,
+                position: new google.maps.LatLng($scope.cities[j].coord.lat, $scope.cities[j].coord.lon) ,
                 map: map,
-                title: 'City: ' + $scope.cities[j].name + ' Temp: ' + $scope.cities[j].temp
+                title: 'City: ' + $scope.cities[j].name + ' Temp: ' + $scope.cities[j].scraptemp
             });
         }
 
         for (var i=0; i< $scope.cities.length; i++) {
             (function(i) {
                 markers[i].addListener('click', function () {
-                    infowindow.setContent($scope.cities[i].name + ' Temp: ' + $scope.cities[i].temp);
+                    infowindow.setContent($scope.cities[i].name + ' Temp: ' + $scope.cities[i].scraptemp);
                     infowindow.open(map, this);
                 });
             }(i))

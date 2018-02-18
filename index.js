@@ -143,7 +143,7 @@ app.get('/weather/refresh', function (req, resp) {
 
 app.get('/weatherscrap/refresh', function (req, resp) {
     getScarappedData(function(data) {
-        logger.info('weather API: sending response json');
+        logger.info('weather API: sending response json' + data);
         resp.json(data);
 	})
 });
@@ -188,11 +188,11 @@ function buildCitiesArray(){
 			json = JSON.stringify(cities);
 			fs.writeFile('canada_cities.json', json, 'utf8');
 			logger.info('file with canadian cities created,total cities: ' + cities.length);
-			buildDBfromAPI( function() {getScarappedData();});
+			//buildDBfromAPI( function() {getScarappedData();});
 		} else {
 			cities = JSON.parse(data);
 			logger.info('file with canadian cities exisit,total cities: ' + cities.length);
-			buildDBfromAPI( function() {getScarappedData();});
+			//buildDBfromAPI( function() {getScarappedData();});
 		}
 	});
 
@@ -223,9 +223,10 @@ function getAIPdata(city, callback) {
 			logger.info('ERROR getAIPdata response: for url: ' + url);
             logger.info(error);
         }
-		//logger.info('getAIPdata response: for url: ' + url);
+		logger.info('getAIPdata response: for url: ' + url);
         try {
             result = JSON.parse(body).list;
+			logger.info('--RESULT: ' + result);
             if (result && result[0]) {
                 var doc = {id: result[0].id, name: result[0].name, lat: result[0].coord.lat, lon: result[0].coord.lon, temp: result[0].main.temp, timestamp: new Date()};
 				if (result[0].main.temp && (result[0].main.temp < -50 || result[0].main.temp > 50)) {
@@ -241,7 +242,7 @@ function getAIPdata(city, callback) {
 
 //recording single doc in database or update existing
 function recordDoc(doc) {
-	//logger.info('recording one DB record:' + JSON.stringify(doc) + ' to '+ JSON.stringify(weatherAPI));
+	logger.info('recording one DB record:' + JSON.stringify(doc));//+ JSON.stringify(weatherAPI));
     var myquery = { id: doc.id };
     var newvalues = { $set: doc };
 	weatherAPI.update(myquery, newvalues, { upsert: true }, function(err, doc){
@@ -258,6 +259,17 @@ function recordDoc(doc) {
 
 //-----SCRAPPING part---
 
+function printObject(o, depth) {
+	logger.info("============== Object Trace ==================");
+	for(var k in o) {
+		logger.info("[" + k + "]: [" + o[k] + "]");
+		if((depth || 0) > 0) {
+			printObject(o[k], depth-1);
+		}
+	}
+	logger.info("==============================================");
+}
+
 //scrapping helper function
 function scrap(url, i){
     request(url, function(err, res, html) {
@@ -270,9 +282,10 @@ function scrap(url, i){
             var text = $(".wob_t").eq(0).text();
             scrapCitiesList[i].scraptemp = text.substring(0, text.length-2);
             logger.info('scrapping city: '+i+' '+scrapCitiesList[i].name +' '+scrapCitiesList[i].scraptemp);
+			//printObject(scrapCitiesList[i], 1);
 			recordDoc(scrapCitiesList[i]);
         }  catch(err) {
-            logger.info(err);
+            logger.info("ERROR SCRAPING: "+ err);
             scrapCitiesList[i].scraptemp = null;
         }
     });
