@@ -178,6 +178,7 @@ function buildCitiesArray(){
 		if (err){
 			console.log(err);
 			var array = JSON.parse(fs.readFileSync(cities_file, 'utf8'));
+			console.log("Cities file read successfully.");
 			for (var i in array) {
 				var city = array[i];
 				if (city.country == 'CA') {
@@ -186,6 +187,7 @@ function buildCitiesArray(){
 				}
 			}
 			json = JSON.stringify(cities);
+			console.log("Writing canada_cities.json");
 			fs.writeFile('canada_cities.json', json, 'utf8');
 			logger.info('file with canadian cities created,total cities: ' + cities.length);
 			//buildDBfromAPI( function() {getScarappedData();});
