@@ -83,7 +83,7 @@ app.use(express.static(__dirname+'/public'));
 // log all request in the Apache combined format to STDOUT
 app.use(morgan('combined'));
 
-var API_key = '2d37b577474d2e7f46d8f8f0f324239d';
+var API_key = '';
 
 var cities_file  = 'city.list.json';
 var cities = [];
@@ -109,7 +109,7 @@ function repeatCalls() {
     timerAPI = setInterval( buildDBfromAPI, 10*600*1000);
 }
 
-// ---ROUTONG---
+// ---ROUTING---
 app.get('/weather', function (req, resp) {
 	weatherAPI.find().sort({'temp':1}).limit(10).toArray(function(err, items) {
 		if (err || !items) {
